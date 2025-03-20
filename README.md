@@ -5,8 +5,6 @@ This project simulates a distributed load balancing system with multiple optimiz
 
 The simulation allows users to observe and interact with different load balancing algorithms, monitor system performance metrics, and study how various optimization techniques impact resource utilization across a network of servers.
 
-![Load Balancer Visualization](https://via.placeholder.com/800x400)
-
 ## Technical Highlights
 
 ### Distributed Systems Architecture
@@ -56,3 +54,18 @@ The architecture of this load balancing system is designed with modularity, flex
 - **Command Pattern**: User inputs are translated into specific actions through a command interface. Each key press corresponds to a command executed by the system. The decoupling of commands from their implementation allows for easy extension of the system’s functionality.
 
 ## Usage
+
+To compile the project, run the following command from the root directory: 
+```
+make
+```
+
+This will compile the source files in the `/src` directory and create the executable. The header files are located in the `/include` directory. To clean up object files and the executable, use:
+```
+make clean
+```
+
+To rebuild the project from scratch, use: 
+```
+make clean
+```
