@@ -10,7 +10,7 @@ LoadMonitor::LoadMonitor(const std::string& logFilePath) : currentAlgorithm("Rou
     
     if (logFile.is_open()) {
         logFile << "=== Load Balancer Monitoring Started at " 
-                << std::put_time(std::localtime(&std::chrono::system_clock::to_time_t(startTime)), 
+                << std::put_time(std::localtime(std::chrono::system_clock::to_time_t(startTime)), 
                                  "%Y-%m-%d %H:%M:%S") << " ===" << std::endl;
         logFile << "Timestamp,Algorithm,ServerCount,AvgLoad,LoadVariance,ResponseTime" << std::endl;
     } else {
