@@ -298,7 +298,7 @@ public:
     void displayStatus() {
         clearScreen();
         
-        std::cout << "===== DISTRIBUTED LOAD BALANCER SIMULATION =====" << std::endl;
+        std::cout << "===== DISTRIBUTED LOAD BALANCER =====" << std::endl;
         std::cout << "Current Algorithm: " << algorithmNames[selectedAlgorithm] << std::endl << std::endl;
         
         std::cout << "Server Status:" << std::endl;
