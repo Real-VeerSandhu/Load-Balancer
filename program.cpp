@@ -325,6 +325,7 @@ public:
                     statusBar += " ";
                 }
             }
+            
             statusBar += "]";
             
             std::cout << "| " << std::setw(2) << server.id << " | " 
