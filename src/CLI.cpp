@@ -13,11 +13,16 @@ CLI::CLI(LoadBalancer& lb) : loadBalancer(lb) {
 }
 
 void CLI::run() {
+    // Initial display
+    monitor->refreshDisplay();
+    
     std::string line;
     while (true) {
-        // Monitor handles display, we just need to get input
-        // The prompt is shown by monitor, so we read directly
+        // Pause monitor updates while reading input
+        monitor->pauseUpdates();
+        std::cout << "> " << std::flush;
         std::getline(std::cin, line);
+        monitor->resumeUpdates();
         
         if (line.empty()) {
             continue;
@@ -41,6 +46,7 @@ void CLI::run() {
         }
         
         if (command == "quit" || command == "exit" || command == "q") {
+            monitor->pauseUpdates();
             monitor->stop();
             std::cout << "\nExiting..." << std::endl;
             break;
@@ -138,6 +144,7 @@ void CLI::handleList() {
 }
 
 void CLI::handleHelp() {
+    monitor->pauseUpdates();
     std::cout << "\nAvailable commands:" << std::endl;
     std::cout << "  add <power>        - Add a server with specified power" << std::endl;
     std::cout << "                      Example: add 50" << std::endl;
@@ -149,6 +156,10 @@ void CLI::handleHelp() {
     std::cout << "  reset              - Reset all server loads to zero" << std::endl;
     std::cout << "  help               - Show this help message" << std::endl;
     std::cout << "  quit               - Exit the simulator\n" << std::endl;
+    std::cout << "Press Enter to continue..." << std::flush;
+    std::string dummy;
+    std::getline(std::cin, dummy);
+    monitor->resumeUpdates();
 }
 
 void CLI::handleReset() {

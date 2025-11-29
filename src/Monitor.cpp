@@ -14,7 +14,7 @@
 
 Monitor::Monitor(LoadBalancer& lb, int updateIntervalMs, 
                  double fluctuationRate, int maxFluctuationAmount)
-    : loadBalancer(lb), running(false), updateIntervalMs(updateIntervalMs),
+    : loadBalancer(lb), running(false), paused(false), updateIntervalMs(updateIntervalMs),
       fluctuationRate(fluctuationRate), maxFluctuationAmount(maxFluctuationAmount) {
 }
 
@@ -56,14 +56,16 @@ void Monitor::setMaxFluctuationAmount(int amount) {
 
 void Monitor::monitorLoop() {
     while (running) {
-        std::lock_guard<std::mutex> lock(displayMutex);
-        
-        // Apply random fluctuations
-        applyRandomFluctuations();
-        
-        // Update display
-        clearScreen();
-        displayServerStates();
+        if (!paused) {
+            std::lock_guard<std::mutex> lock(displayMutex);
+            
+            // Apply random fluctuations
+            applyRandomFluctuations();
+            
+            // Update display
+            clearScreen();
+            displayServerStates();
+        }
         
         // Sleep for update interval
         std::this_thread::sleep_for(std::chrono::milliseconds(updateIntervalMs));
@@ -173,8 +175,7 @@ void Monitor::displayServerStates() {
     }
     
     std::cout << std::string(70, '-') << std::endl;
-    std::cout << "\nCommands: add <power> | remove <id> | send <count> | reset | help | quit\n" << std::endl;
-    std::cout << "> " << std::flush;
+    std::cout << "\nCommands: add <power> | remove <id> | send <count> | reset | help | quit" << std::endl;
 }
 
 void Monitor::drawStatusBar(int totalServers, int totalLoad, int totalPower) {
@@ -195,5 +196,14 @@ void Monitor::refreshDisplay() {
     std::lock_guard<std::mutex> lock(displayMutex);
     clearScreen();
     displayServerStates();
+}
+
+void Monitor::pauseUpdates() {
+    paused = true;
+}
+
+void Monitor::resumeUpdates() {
+    paused = false;
+    refreshDisplay();
 }
 

@@ -11,6 +11,7 @@ class Monitor {
 private:
     LoadBalancer& loadBalancer;
     std::atomic<bool> running;
+    std::atomic<bool> paused;
     std::thread monitorThread;
     std::mutex displayMutex;
     
@@ -44,6 +45,8 @@ public:
     
     // Display control
     void refreshDisplay();
+    void pauseUpdates();
+    void resumeUpdates();
 };
 
 #endif // MONITOR_H
