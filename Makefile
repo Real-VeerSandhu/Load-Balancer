@@ -1,6 +1,6 @@
 CXX = clang++
-CXXFLAGS = -std=c++11 -Wall -Wextra -O2 -g -fsanitize=address
-LDFLAGS = -fsanitize=address
+CXXFLAGS = -std=c++11 -Wall -Wextra -O2 -g -fsanitize=address -pthread
+LDFLAGS = -fsanitize=address -pthread
 SRCDIR = src
 BUILDDIR = build
 TARGET = sim

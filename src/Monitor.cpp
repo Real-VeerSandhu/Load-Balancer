@@ -4,6 +4,7 @@
 #include <chrono>
 #include <random>
 #include <algorithm>
+#include <thread>
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -192,7 +193,7 @@ std::vector<ServerSnapshot> Monitor::getServerSnapshots() {
     return loadBalancer.getServerSnapshots();
 }
 
-void Monitor::refreshDisplay() {
+void Monitor::refreshDisplay() {=
     std::lock_guard<std::mutex> lock(displayMutex);
     clearScreen();
     displayServerStates();

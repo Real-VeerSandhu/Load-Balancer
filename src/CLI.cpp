@@ -7,8 +7,8 @@
 #include <chrono>
 
 CLI::CLI(LoadBalancer& lb) : loadBalancer(lb) {
-    // Create and start monitor
-    monitor = std::make_unique<Monitor>(loadBalancer, 500, 0.3, 5);
+    // Create and start monitor (using new for C++11 compatibility)
+    monitor.reset(new Monitor(loadBalancer, 500, 0.3, 5));
     monitor->start();
 }
 
@@ -70,76 +70,100 @@ void CLI::run() {
             handleReset();
         }
         else {
+            monitor->pauseUpdates();
             std::cout << "Unknown command: " << command << std::endl;
             std::cout << "Type 'help' for available commands." << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+            monitor->resumeUpdates();
         }
     }
 }
 
 void CLI::handleAdd(const std::string& args) {
+    monitor->pauseUpdates();
     if (args.empty()) {
         std::cout << "Usage: add <power>" << std::endl;
         std::cout << "Example: add 50" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        monitor->resumeUpdates();
         return;
     }
     
     int power = parseInteger(args, "add");
     if (power <= 0) {
         std::cout << "Error: Power must be a positive integer." << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        monitor->resumeUpdates();
         return;
     }
     
     int id = loadBalancer.addServer(power);
-    monitor->refreshDisplay();
-    // Message will be shown briefly before monitor updates
+    std::cout << "Added server with ID " << id << " and power " << power << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    monitor->resumeUpdates();
 }
 
 void CLI::handleRemove(const std::string& args) {
+    monitor->pauseUpdates();
     if (args.empty()) {
         std::cout << "Usage: remove <server_id>" << std::endl;
         std::cout << "Example: remove 3" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        monitor->resumeUpdates();
         return;
     }
     
     int id = parseInteger(args, "remove");
     if (id <= 0) {
         std::cout << "Error: Server ID must be a positive integer." << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        monitor->resumeUpdates();
         return;
     }
     
     if (loadBalancer.removeServer(id)) {
-        monitor->refreshDisplay();
-    } else {
-        // Error message - monitor will refresh on next cycle
-        std::cout << "\nError: Server with ID " << id << " not found." << std::endl;
+        std::cout << "Removed server with ID " << id << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        monitor->refreshDisplay();
+    } else {
+        std::cout << "Error: Server with ID " << id << " not found." << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     }
+    monitor->resumeUpdates();
 }
 
 void CLI::handleSend(const std::string& args) {
+    monitor->pauseUpdates();
     if (args.empty()) {
         std::cout << "Usage: send <request_count>" << std::endl;
         std::cout << "Example: send 200" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        monitor->resumeUpdates();
         return;
     }
     
     int count = parseInteger(args, "send");
     if (count <= 0) {
         std::cout << "Error: Request count must be a positive integer." << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        monitor->resumeUpdates();
         return;
     }
     
     if (loadBalancer.getServerCount() == 0) {
         std::cout << "Error: No servers available. Add servers first." << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        monitor->resumeUpdates();
         return;
     }
     
     loadBalancer.distributeRequests(count);
-    monitor->refreshDisplay();
+    std::cout << "Distributed " << count << " requests." << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(800));
+    monitor->resumeUpdates();
 }
 
 void CLI::handleList() {
+    // List just refreshes the display
     monitor->refreshDisplay();
 }
 
@@ -163,8 +187,11 @@ void CLI::handleHelp() {
 }
 
 void CLI::handleReset() {
+    monitor->pauseUpdates();
     loadBalancer.resetAllLoads();
-    monitor->refreshDisplay();
+    std::cout << "All server loads have been reset." << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    monitor->resumeUpdates();
 }
 
 int CLI::parseInteger(const std::string& str, const std::string& command) {
