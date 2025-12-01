@@ -192,7 +192,7 @@ void Monitor::drawStatusBar(int totalServers, int totalLoad, int totalPower) {
 std::vector<ServerSnapshot> Monitor::getServerSnapshots() {
     return loadBalancer.getServerSnapshots();
 }
-
+ 
 void Monitor::refreshDisplay() {=
     std::lock_guard<std::mutex> lock(displayMutex);
     clearScreen();
