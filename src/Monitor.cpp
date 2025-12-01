@@ -193,7 +193,7 @@ std::vector<ServerSnapshot> Monitor::getServerSnapshots() {
     return loadBalancer.getServerSnapshots();
 }
  
-void Monitor::refreshDisplay() {=
+void Monitor::refreshDisplay() {
     std::lock_guard<std::mutex> lock(displayMutex);
     clearScreen();
     displayServerStates();

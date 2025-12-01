@@ -7,6 +7,7 @@
 
 LoadBalancer::LoadBalancer(LoadBalanceStrategy strat) 
     : nextServerIndex(0), strategy(strat), serverIdCounter(1) {
+    // serversMutex and servers are default-constructed automatically
 }
 
 int LoadBalancer::addServer(int power) {

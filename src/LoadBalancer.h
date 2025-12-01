@@ -24,11 +24,11 @@ struct ServerSnapshot {
 
 class LoadBalancer {
 private:
+    mutable std::mutex serversMutex; // Mutex for thread-safe access (put first for alignment)
     std::vector<Server> servers;
     int nextServerIndex; // For round-robin
     LoadBalanceStrategy strategy;
     int serverIdCounter;
-    mutable std::mutex serversMutex; // Mutex for thread-safe access
 
     // Distribution methods
     void distributeWeightedRoundRobin(int requestCount);
