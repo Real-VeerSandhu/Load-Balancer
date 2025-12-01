@@ -8,7 +8,8 @@
 
 CLI::CLI(LoadBalancer& lb) : loadBalancer(lb) {
     // Create and start monitor (using new for C++11 compatibility)
-    monitor.reset(new Monitor(loadBalancer, 500, 0.3, 5));
+    // Monitor: update every 500ms, 60% fluctuation rate, max change of 3 per cycle
+    monitor.reset(new Monitor(loadBalancer, 500, 0.6, 3));
     monitor->start();
 }
 

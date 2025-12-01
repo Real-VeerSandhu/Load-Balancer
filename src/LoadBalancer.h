@@ -64,6 +64,7 @@ public:
     // Thread-safe methods for Monitor
     std::vector<ServerSnapshot> getServerSnapshots() const;
     void applyRandomFluctuation(int amount);
+    void applyNaturalFluctuations(double fluctuationRate, int maxFluctuationAmount);
 };
 
 #endif // LOADBALANCER_H

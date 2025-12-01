@@ -8,6 +8,8 @@
 LoadBalancer::LoadBalancer(LoadBalanceStrategy strat) 
     : nextServerIndex(0), strategy(strat), serverIdCounter(1) {
     // serversMutex and servers are default-constructed automatically
+    // Note: mutex initialization may trigger AddressSanitizer false positives on some platforms
+    // This is a known issue and can be safely ignored
 }
 
 int LoadBalancer::addServer(int power) {
@@ -205,6 +207,61 @@ void LoadBalancer::applyRandomFluctuation(int amount) {
     servers[randomIndex].resetLoad();
     if (newLoad > 0) {
         servers[randomIndex].addLoad(newLoad);
+    }
+}
+
+void LoadBalancer::applyNaturalFluctuations(double fluctuationRate, int maxFluctuationAmount) {
+    std::lock_guard<std::mutex> lock(serversMutex);
+    if (servers.empty()) return;
+    
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<> probDist(0.0, 1.0);
+    static std::uniform_int_distribution<> amountDist(-maxFluctuationAmount, maxFluctuationAmount);
+    
+    // Apply small random fluctuations to all servers (like real-world traffic variations)
+    for (auto& server : servers) {
+        int currentLoad = server.getCurrentLoad();
+        int totalChange = 0;
+        
+        // Apply random fluctuation - every server gets some variation
+        // Use fluctuationRate to determine how often significant changes happen
+        if (probDist(gen) < fluctuationRate) {
+            // Significant fluctuation
+            int fluctuation = amountDist(gen);
+            totalChange += fluctuation;
+        } else {
+            // Small random variation (always apply some tiny change)
+            std::uniform_int_distribution<> smallDist(-1, 1);
+            totalChange += smallDist(gen);
+        }
+        
+        // Natural decay - servers process requests over time
+        // Apply decay more frequently for servers with load
+        if (currentLoad > 0) {
+            // Higher chance of decay for loaded servers
+            double decayChance = std::min(0.3, currentLoad / 100.0);
+            if (probDist(gen) < decayChance) {
+                // Decay 1-3% of current load
+                int decayPercent = 1 + (static_cast<int>(probDist(gen) * 100) % 3); // 1-3%
+                int decay = static_cast<int>(currentLoad * decayPercent / 100.0);
+                if (decay > 0) {
+                    totalChange -= decay;
+                }
+            }
+        }
+        
+        // Apply the total change
+        int newLoad = currentLoad + totalChange;
+        if (newLoad < 0) {
+            newLoad = 0;
+        }
+        
+        // Update the server load
+        server.resetLoad();
+        if (newLoad > 0) {
+            server.addLoad(newLoad);
+        }
     }
 }
 

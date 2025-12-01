@@ -76,28 +76,10 @@ void Monitor::monitorLoop() {
 void Monitor::applyRandomFluctuations() {
     if (loadBalancer.getServerCount() == 0) return;
     
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_real_distribution<> probDist(0.0, 1.0);
-    static std::uniform_int_distribution<> amountDist(-maxFluctuationAmount, maxFluctuationAmount);
-    
-    // Apply fluctuations to random servers based on fluctuation rate
-    int serverCount = loadBalancer.getServerCount();
-    int serversToFluctuate = static_cast<int>(serverCount * fluctuationRate);
-    
-    if (serversToFluctuate == 0 && probDist(gen) < fluctuationRate) {
-        serversToFluctuate = 1;
-    }
-    
-    for (int i = 0; i < serversToFluctuate; ++i) {
-        if (probDist(gen) < fluctuationRate) {
-            int fluctuation = amountDist(gen);
-            if (fluctuation != 0) {
-                // Apply fluctuation through load balancer
-                loadBalancer.applyRandomFluctuation(fluctuation);
-            }
-        }
-    }
+    // Apply natural fluctuations to all servers
+    // This simulates real-world traffic patterns where all servers
+    // experience small random variations in load
+    loadBalancer.applyNaturalFluctuations(fluctuationRate, maxFluctuationAmount);
 }
 
 void Monitor::clearScreen() {
