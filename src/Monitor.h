@@ -30,7 +30,7 @@ private:
 
 public:
     Monitor(LoadBalancer& lb, int updateIntervalMs = 500, 
-            double fluctuationRate = 0.3, int maxFluctuationAmount = 5);
+            double fluctuationRate = 0.3, int maxFluctuationAmount = 50);
     ~Monitor();
     
     // Control
